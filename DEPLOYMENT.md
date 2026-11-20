@@ -75,7 +75,7 @@ If you prefer clicking through **New → Web Service**:
 | Language / runtime | Python 3 |
 | Root directory | repository root (leave empty) |
 | Build command | `pip install --upgrade pip && pip install -r requirements.txt` |
-| Start command | `gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --access-logfile - wsgi:app` |
+| Start command | `gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - wsgi:app` |
 | Health check path | `/healthz` |
 
 Environment variables:
@@ -84,7 +84,7 @@ Environment variables:
 |---|---|
 | `PYTHON_VERSION` | `3.13.7` |
 | `PHISHGUARD_ENV` | `production` |
-| `FLASK_SECRET_KEY` | the 64-character hex string from step 0 |
+| `FLASK_SECRET_KEY` | the 64-character hex string from step 0 **— the service exits with status 1 if this is missing** |
 | `PHISHGUARD_DATA_DIR` | `/tmp/phishguard` (or your disk mount path) |
 | `PHISHGUARD_ACCESS_CODE` | your passcode, or empty |
 | `PHISHGUARD_ALLOWED_ORIGINS` | `https://YOUR-PROJECT.vercel.app` |
@@ -187,6 +187,7 @@ Then in the browser:
 | Symptom | Cause | Fix |
 |---|---|---|
 | Build fails with `No module named ...` | dependency not listed in `requirements.txt` | add it, commit, push |
+| Build succeeds, then `Exited with status 1` and `Error: FLASK_SECRET_KEY must be set` | the key was never added to this service | add it under Environment, save, and the service redeploys by itself |
 | `ConfigurationError: FLASK_SECRET_KEY` at boot | production without a stable key | set `FLASK_SECRET_KEY` on Render |
 | `/healthz` returns `503` | database or model could not load | check logs for `database`/`model` detail; usually a bad `PHISHGUARD_DATA_DIR` |
 | Vercel shows `503 PHISHGUARD_APP_URL is not set` | env var missing | add it, redeploy |

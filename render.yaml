@@ -6,7 +6,10 @@ services:
     region: singapore
     branch: main
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --access-logfile - wsgi:app
+    # One worker keeps the 512 MB free instance well under its memory ceiling
+    # (pandas + scikit-learn are imported per worker) and keeps the in-process
+    # rate limiter authoritative. Threads absorb concurrent I/O-bound requests.
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - wsgi:app
     healthCheckPath: /healthz
     autoDeploy: true
     envVars:
