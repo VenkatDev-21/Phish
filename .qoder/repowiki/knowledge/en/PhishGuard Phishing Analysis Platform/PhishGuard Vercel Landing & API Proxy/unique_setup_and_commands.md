@@ -1,0 +1,1 @@
+Requires the `PHISHGUARD_APP_URL` environment variable in the Vercel project settings pointing at the hosted backend; without it both `/api/health` and `/api/scan` return error payloads. Local development uses `npm run dev` → `vercel dev`; production deploy is `npm run deploy --prod`.

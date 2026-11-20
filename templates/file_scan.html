@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}File scanner · PhishGuard{% endblock %}
+{% block page_name %}File scanner{% endblock %}
+
+{% block content %}
+<section class="page-intro file-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> FILE TRIAGE · STATIC ANALYSIS</div>
+        <h1>Inspect a file, <span>before it runs.</span></h1>
+        <p>Calculate a SHA-256 fingerprint and check selected local or external scanners. Uploaded samples are never executed.</p>
+    </div>
+    <div class="file-size-badge"><span class="live-dot"></span><strong>{{ max_upload_label }}</strong><small>maximum local upload</small></div>
+</section>
+
+<section class="file-scan-layout">
+    <div class="panel file-upload-panel">
+        <div class="panel-heading">
+            <div><div class="section-kicker">01 / SUBMIT SAMPLE</div><h2>Analyze a file</h2></div>
+            <span class="secure-tag"><span class="live-dot"></span> LOCAL INTAKE</span>
+        </div>
+        <p class="panel-description">Files are streamed to local temporary storage, fingerprinted in chunks, and removed after analysis completes.</p>
+
+        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" data-file-form data-max-upload-bytes="{{ max_upload_bytes }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label class="file-dropzone" for="file-input" data-file-dropzone>
+                <span class="file-drop-icon" aria-hidden="true">⇧</span>
+                <strong data-file-name>Choose a file or drop it here</strong>
+                <span data-file-size>Any file type · up to {{ max_upload_label }}</span>
+                <input id="file-input" type="file" name="file" required data-file-input>
+            </label>
+
+            <div class="selected-file-meta" data-selected-file hidden>
+                <span class="selected-file-icon" aria-hidden="true">◈</span>
+                <div><strong data-selected-name></strong><small data-selected-size></small></div>
+                <button type="button" class="clear-input" data-clear-file aria-label="Remove selected file">×</button>
+            </div>
+
+            <label class="external-consent">
+                <input type="checkbox" name="external_consent">
+                <span><strong>Allow third-party submission for this scan</strong><small>Selected samples may be sent to VirusTotal and OPSWAT if configured. VirusTotal submissions are shared with its security community. Leave unchecked for local-only analysis.</small></span>
+            </label>
+
+            <div class="upload-progress" data-upload-progress hidden>
+                <div class="upload-progress-heading"><span data-upload-label>Uploading sample</span><strong data-upload-percent>0%</strong></div>
+                <div class="progress-track"><span data-upload-bar></span></div>
+                <small>Keep this page open until upload finishes.</small>
+            </div>
+            <p class="file-form-error" data-file-error role="alert" hidden></p>
+
+            <button class="button button-primary file-submit" type="submit" data-file-submit disabled>
+                <span data-file-submit-label>Choose a file to analyze</span>
+                <span class="button-arrow" aria-hidden="true">→</span>
+            </button>
+        </form>
+
+        <div class="file-privacy-note"><span aria-hidden="true">!</span><p><strong>Handle samples carefully.</strong> Do not upload confidential, personal, or regulated data unless you have approval. Provider APIs have their own limits and retention policies; a local upload limit does not override them.</p></div>
+    </div>
+
+    <aside class="scan-aside">
+        <div class="panel insight-panel">
+            <div class="section-kicker">ANALYSIS LAYERS</div>
+            <h3>Evidence, not a guess.</h3>
+            <div class="step-list">
+                <div class="step-item"><span class="step-number">01</span><div><strong>Fingerprint locally</strong><p>SHA-256 and basic file-signature identification.</p></div></div>
+                <div class="step-item"><span class="step-number">02</span><div><strong>Check configured engines</strong><p>ClamAV runs locally; external providers run only with your consent and valid API keys.</p></div></div>
+                <div class="step-item"><span class="step-number">03</span><div><strong>Review each result</strong><p>Unavailable engines and provider upload limits are shown explicitly.</p></div></div>
+            </div>
+        </div>
+        <div class="panel scanner-config-panel">
+            <div class="section-kicker">SCANNER READINESS</div>
+            <h3>Configured engines</h3>
+            {% for scanner in scanner_configuration %}
+            <div class="scanner-config-row">
+                <div><strong>{{ scanner.provider }}</strong><p>{{ scanner.message }}</p></div>
+                <span class="scan-state {{ 'scan-state-configured' if scanner.configured else 'scan-state-not_configured' }}">{{ 'Configured' if scanner.configured else 'Setup needed' }}</span>
+            </div>
+            {% endfor %}
+            <p class="scanner-config-note">Cloud scanners only receive a sample when you opt in for that upload. Antivirus results do not prove a file is safe or specifically identify phishing content.</p>
+        </div>
+        <div class="panel caution-panel">
+            <div class="caution-icon" aria-hidden="true">!</div>
+            <div><strong>No automatic execution</strong><p>This is static triage, not a sandbox. Never open a suspicious sample on your everyday device.</p></div>
+        </div>
+    </aside>
+</section>
+
+{% endblock %}

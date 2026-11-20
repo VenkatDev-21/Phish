@@ -1,0 +1,1 @@
+Each test class sets up a per-test temporary directory and reinitializes the database via `web_app.init_db()` in `setUp`; `HardeningTests` additionally saves/restores original config keys and clears `security.LIMITER` in `tearDown` to avoid cross-test rate-limit leakage.

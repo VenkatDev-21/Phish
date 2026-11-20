@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#08111f">
+<meta name="description" content="PhishGuard is an open-source phishing triage toolkit: a machine-learning URL model, static file triage, and email security checks with an auditable scan history.">
+<title>PhishGuard · Make the next click a safer one</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/styles.css" as="style">
+<link rel="stylesheet" href="/styles.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<div class="mesh" aria-hidden="true"></div>
+<div class="grid-lines" aria-hidden="true"></div>
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="PhishGuard home">
+    <span class="brand-mark" aria-hidden="true">P</span>
+    <span class="brand-name">phish<span>guard</span></span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="#scan">Live scan</a>
+    <a href="#scanners">Scanners</a>
+    <a href="#how">How it works</a>
+    <a class="nav-console" data-app-link data-app-path="/dashboard" href="#scan" rel="noopener">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span>Full console</span>
+    </a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="eyebrow-mark" aria-hidden="true"></span>PHISHING TRIAGE · OPEN SOURCE</p>
+      <h1>Make the <em>next click</em><br>a safer one.</h1>
+      <p class="hero-lede">
+        PhishGuard scores a link's structure with a machine-learning model, triages files without
+        executing them, and reads email signals locally. Nothing is opened, and every result is
+        written to an auditable scan history.
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#scan">Scan a URL <span aria-hidden="true">→</span></a>
+        <a class="button button-ghost" data-app-link data-app-path="" href="#scanners" rel="noopener">Open the console</a>
+      </div>
+      <dl class="hero-stats">
+        <div><dt>Engines</dt><dd>URL model · ClamAV · VirusTotal · OPSWAT</dd></div>
+        <div><dt>Privacy</dt><dd>Local by default, sharing is opt-in</dd></div>
+        <div><dt>Data</dt><dd>SQLite scan history you control</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="orb orb-outer"></div>
+      <div class="orb orb-inner"></div>
+      <div class="orb-core">P</div>
+      <span class="orb-pip orb-pip-a"></span>
+      <span class="orb-pip orb-pip-b"></span>
+      <span class="orb-pip orb-pip-c"></span>
+      <div class="signal-card">
+        <span class="signal-label">MODEL SIGNAL</span>
+        <span class="signal-value" data-signal-value>—</span>
+        <span class="signal-bar"><i data-signal-bar></i></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="scan-section" id="scan">
+    <div class="scan-card">
+      <div class="scan-card-head">
+        <div>
+          <p class="kicker">01 / LIVE DEMO</p>
+          <h2>Check a suspicious link</h2>
+        </div>
+        <span class="status-chip" data-status-chip>
+          <span class="status-dot" data-status-dot aria-hidden="true"></span>
+          <span data-status-text>Checking demo API…</span>
+        </span>
+      </div>
+      <p class="scan-lede">
+        The URL is parsed, never fetched. This page calls the Flask API running on Render through a
+        same-origin proxy, so no API key or host name is exposed to your browser.
+      </p>
+
+      <form class="scan-form" data-scan-form novalidate>
+        <label class="field-label" for="url-input">URL TO INSPECT</label>
+        <div class="field">
+          <span class="field-prefix" aria-hidden="true">↗</span>
+          <input id="url-input" name="url" type="url" inputmode="url" autocomplete="url"
+                 spellcheck="false" placeholder="https://example.com/account/verify">
+          <button class="field-clear" type="button" data-clear aria-label="Clear URL" hidden>×</button>
+        </div>
+        <div class="field-meta">
+          <span>Include http:// or https://</span>
+          <span data-scan-hint aria-live="polite">Ready when you are</span>
+        </div>
+        <button class="button button-primary scan-submit" type="submit" data-submit>
+          <span data-submit-label>Analyze URL</span>
+          <span aria-hidden="true">→</span>
+        </button>
+        <div class="sample-row">
+          <span>TRY AN EXAMPLE</span>
+          <button type="button" class="sample" data-sample="https://www.wikipedia.org/">Trusted-style URL</button>
+          <button type="button" class="sample" data-sample="http://secure-account-verify.example/login">Suspicious-style URL</button>
+        </div>
+      </form>
+
+      <div class="scan-result" data-result hidden aria-live="polite">
+        <div class="result-head">
+          <span class="result-badge" data-result-badge>—</span>
+          <div>
+            <p class="kicker">MODEL CLASSIFICATION</p>
+            <h3 data-result-title>Awaiting result</h3>
+          </div>
+        </div>
+        <p class="result-url" data-result-url></p>
+        <div class="meter-row">
+          <span>Phishing probability</span>
+          <strong data-result-probability>—</strong>
+        </div>
+        <div class="meter" role="meter" aria-label="Phishing probability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-meter>
+          <i data-meter-bar></i>
+        </div>
+        <div class="chips" data-result-features></div>
+        <p class="result-note" data-result-note></p>
+      </div>
+
+      <p class="scan-error" data-error role="alert" hidden></p>
+    </div>
+  </section>
+
+  <section class="scanners" id="scanners">
+    <div class="section-head">
+      <p class="kicker">02 / THE TOOLKIT</p>
+      <h2>Three scanners, one timeline</h2>
+      <p>Every module writes to the same SQLite history, so an investigation can move from a link to a file to a message without losing context.</p>
+    </div>
+    <div class="card-grid">
+      <article class="cap-card">
+        <span class="cap-icon" aria-hidden="true">⌕</span>
+        <h3>URL analysis</h3>
+        <p>13 structural signals feed a trained classifier. No page is loaded and no reputation API is called.</p>
+        <a data-app-link data-app-path="/" href="#scan" rel="noopener">Open URL scanner <span aria-hidden="true">→</span></a>
+      </article>
+      <article class="cap-card">
+        <span class="cap-icon" aria-hidden="true">✉</span>
+        <h3>Email security</h3>
+        <p>Sender alignment, SPF/DKIM/DMARC claims, urgency language, links, and static attachment inspection.</p>
+        <a data-app-link data-app-path="/email" href="#scan" rel="noopener">Open email analyzer <span aria-hidden="true">→</span></a>
+      </article>
+      <article class="cap-card">
+        <span class="cap-icon" aria-hidden="true">◈</span>
+        <h3>File triage</h3>
+        <p>SHA-256 fingerprinting, signature detection, local ClamAV, and optional provider submissions per scan.</p>
+        <a data-app-link data-app-path="/files" href="#scan" rel="noopener">Open file scanner <span aria-hidden="true">→</span></a>
+      </article>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div class="section-head">
+      <p class="kicker">03 / PIPELINE</p>
+      <h2>How a scan actually runs</h2>
+    </div>
+    <ol class="steps">
+      <li><span>01</span><div><h3>Validate, never visit</h3><p>The URL is parsed and length-checked. The scanner never resolves or requests the host.</p></div></li>
+      <li><span>02</span><div><h3>Extract structural signals</h3><p>Dots, hyphens, digits, special characters, scheme, IP hosts, subdomains, and login wording.</p></div></li>
+      <li><span>03</span><div><h3>Score and record</h3><p>The model returns a class and a phishing probability, written to the scan database with a timestamp.</p></div></li>
+      <li><span>04</span><div><h3>Review in the console</h3><p>The dashboard aggregates URL, file, and email events, with CSV export for reporting.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="limits">
+    <div>
+      <p class="kicker">READ THIS FIRST</p>
+      <h2>What this is not</h2>
+      <p>
+        PhishGuard is an educational triage tool, not a security product. The model can be wrong in
+        both directions, file scanners only report known signatures, and a low score is not proof of
+        safety. Do not use it as your only control.
+      </p>
+    </div>
+    <ul>
+      <li>URLs are never fetched or screenshotted.</li>
+      <li>Email authentication headers are reported claims, not verified signatures.</li>
+      <li>Third-party submission is opt-in per scan.</li>
+      <li>Hosted demo storage can be reset on redeploy.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div>
+    <span class="brand-mark small" aria-hidden="true">P</span>
+    <p>PhishGuard · open-source phishing triage.</p>
+  </div>
+  <div class="footer-links">
+    <a data-app-link data-app-path="/dashboard" href="#scan" rel="noopener">Console</a>
+    <a data-app-link data-app-path="/api" href="#scan" rel="noopener">API</a>
+    <a href="#how">How it works</a>
+  </div>
+</footer>
+</body>
+</html>

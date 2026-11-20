@@ -1,0 +1,1 @@
+Flask application that exposes URL, file, and email phishing-analysis endpoints backed by SQLite, with a WSGI shim for gunicorn and an environment-driven configuration layer.

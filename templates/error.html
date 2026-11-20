@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ error_title }} · PhishGuard{% endblock %}
+{% block page_name %}{{ error_title }}{% endblock %}
+
+{% block content %}
+<section class="page-intro compact-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> REQUEST NOT COMPLETED · {{ error_code }}</div>
+        <h1>{{ error_title }}<span>.</span></h1>
+        <p>{{ error_message }}</p>
+    </div>
+</section>
+
+<section class="error-layout">
+    <div class="panel error-panel">
+        <div class="error-symbol" aria-hidden="true">{{ error_code }}</div>
+        <div>
+            <div class="section-kicker">WHAT YOU CAN DO</div>
+            <h2>Pick up where you left off.</h2>
+            <p>Nothing you uploaded was executed, and no link was opened. Retry the action, or start from a scanner.</p>
+            {% if retry_after %}
+            <p class="error-retry">Try again in about {{ retry_after }} seconds.</p>
+            {% endif %}
+            <div class="error-actions">
+                <a class="button button-primary" href="{{ url_for('home') }}">URL scanner <span aria-hidden="true">→</span></a>
+                <a class="button button-quiet" href="{{ url_for('email_scanner') }}">Email security</a>
+                <a class="button button-quiet" href="{{ url_for('file_scanner') }}">File security</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,1 @@
+Static landing page plus same-origin Vercel serverless functions that proxy URL scans to the hosted PhishGuard backend, keeping the upstream host out of the browser.

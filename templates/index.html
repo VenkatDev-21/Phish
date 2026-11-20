@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}URL Scanner · PhishGuard{% endblock %}
+{% block page_name %}URL scanner{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> THREAT INTELLIGENCE · URL ANALYSIS</div>
+        <h1>Make the <span>next click</span> a safer one.</h1>
+        <p>Inspect a link before you open it. PhishGuard looks at URL patterns and scores the risk with a machine-learning model.</p>
+    </div>
+    <div class="intro-orbit" aria-hidden="true">
+        <div class="orbit-ring orbit-ring-outer"></div>
+        <div class="orbit-ring orbit-ring-inner"></div>
+        <div class="orbit-center">P</div>
+        <span class="orbit-point"></span>
+    </div>
+</section>
+
+<section class="scanner-layout" aria-labelledby="scan-title">
+    <div class="panel scan-panel">
+        <div class="panel-heading">
+            <div>
+                <div class="section-kicker">01 / ANALYZE</div>
+                <h2 id="scan-title">Check a suspicious link</h2>
+            </div>
+            <span class="secure-tag"><span class="live-dot"></span> PRIVATE SCAN</span>
+        </div>
+        <p class="panel-description">Paste the complete URL below. The scanner checks its structure without visiting the website.</p>
+
+        <form action="{{ url_for('predict') }}" method="POST" class="scan-form" data-scan-form>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="url-input">URL TO INSPECT</label>
+            <div class="url-input-wrap">
+                <span class="input-prefix" aria-hidden="true">↗</span>
+                <input id="url-input" type="url" name="url" placeholder="https://example.com/account" autocomplete="url" spellcheck="false" required aria-describedby="url-help url-feedback">
+                <button class="clear-input" type="button" aria-label="Clear URL" data-clear-url hidden>×</button>
+            </div>
+            <div class="input-meta">
+                <span id="url-help">Include http:// or https://</span>
+                <span id="url-feedback" aria-live="polite">No URL analyzed yet</span>
+            </div>
+
+            <div class="url-preview" data-url-preview hidden>
+                <div class="preview-symbol" aria-hidden="true">↳</div>
+                <div class="preview-copy">
+                    <span>LINK PREVIEW</span>
+                    <strong data-preview-host></strong>
+                    <small data-preview-path></small>
+                </div>
+                <span class="preview-length" data-preview-length></span>
+            </div>
+
+            <button class="button button-primary scan-submit" type="submit" data-submit-button>
+                <span data-submit-label>Analyze URL</span>
+                <span class="button-arrow" aria-hidden="true">→</span>
+            </button>
+        </form>
+
+        <div class="sample-links">
+            <span>TRY AN EXAMPLE</span>
+            <button type="button" data-example-url="https://www.wikipedia.org/">Trusted-style URL</button>
+            <button type="button" data-example-url="http://secure-account-verify.example/login">Suspicious-style URL</button>
+        </div>
+        <div class="privacy-note"><span aria-hidden="true">◇</span> We never open the link or submit information to it.</div>
+    </div>
+
+    <aside class="scan-aside">
+        <div class="panel insight-panel">
+            <div class="section-kicker">HOW IT WORKS</div>
+            <h3>A quick read on a link.</h3>
+            <div class="step-list">
+                <div class="step-item">
+                    <span class="step-number">01</span>
+                    <div><strong>Inspect the structure</strong><p>We extract URL and hostname signals.</p></div>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">02</span>
+                    <div><strong>Score the pattern</strong><p>A trained model estimates phishing likelihood.</p></div>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">03</span>
+                    <div><strong>Review the result</strong><p>See the probability and underlying features.</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="panel caution-panel">
+            <div class="caution-icon" aria-hidden="true">!</div>
+            <div>
+                <strong>Think before you click</strong>
+                <p>This educational tool can make mistakes. Don’t enter passwords or sensitive information.</p>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="bottom-strip">
+    <div><span class="strip-icon">⌁</span><span><strong>Pattern-based signals</strong><small>URL structure, not webpage contents</small></span></div>
+    <div><span class="strip-icon">◷</span><span><strong>Scan history</strong><small>Review your recent checks anytime</small></span></div>
+    <a href="{{ url_for('dashboard') }}">Explore your dashboard <span aria-hidden="true">↗</span></a>
+</section>
+{% endblock %}

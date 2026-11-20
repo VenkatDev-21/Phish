@@ -1,0 +1,5 @@
+- Page templates extend `base.html` and only override `title`, `page_name`, `content`, and optionally `page_scripts` blocks rather than duplicating layout markup.
+- Client-side behavior is wired declaratively: DOM nodes are selected via `[data-*]` attributes (e.g. `data-url-preview`, `data-file-form`, `data-email-input`, `data-risk-meter`) instead of class/id selectors.
+- CSRF protection is propagated from Jinja's `csrf_token` meta tag into both form submissions and XHR requests via the `X-CSRF-Token` header.
+- Flask endpoint names are referenced centrally through `url_for(...)` in both template links and sidebar active-state checks (`request.endpoint == ...`) to keep navigation and styling in sync.
+- Async scan flows follow a submit → 202 with `response.url` → redirect pattern, with the client polling a `data-statusUrl` endpoint every 3 seconds until the result reaches `complete` or `failed`.

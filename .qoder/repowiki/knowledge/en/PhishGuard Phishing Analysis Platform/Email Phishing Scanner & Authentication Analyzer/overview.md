@@ -1,0 +1,1 @@
+Parses and scores incoming emails for phishing indicators by combining rule-based content checks, HTML/link analysis, attachment inspection, and SPF/DKIM/DMARC authentication verification.

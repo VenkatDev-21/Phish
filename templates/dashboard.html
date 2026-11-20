@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}SOC overview · PhishGuard{% endblock %}
+{% block page_name %}SOC / Overview{% endblock %}
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="soc-dashboard" data-dashboard data-refresh-seconds="60">
+    <div class="soc-alert" role="status" aria-live="polite" data-dashboard-alert hidden></div>
+
+    <section class="soc-heading" id="overview">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-mark"></span> SECURITY OPERATIONS CENTER</div>
+            <h1>Threat activity <span>overview.</span></h1>
+            <p>Evidence from local URL, file, and email scan records. No sample data is generated.</p>
+        </div>
+        <div class="soc-controls">
+            <label class="soc-control">
+                <span>TIME RANGE</span>
+                <select data-dashboard-range>
+                    <option value="15m">Last 15 minutes</option>
+                    <option value="1h">Last 1 hour</option>
+                    <option value="24h" selected>Last 24 hours</option>
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                    <option value="custom">Custom range</option>
+                </select>
+            </label>
+            <button class="soc-button" type="button" data-dashboard-refresh>
+                <span aria-hidden="true">↻</span> Refresh
+            </button>
+        </div>
+    </section>
+
+    <section class="soc-toolbar panel" aria-label="Dashboard controls">
+        <div class="soc-custom-range" data-custom-range hidden>
+            <label>From <input type="datetime-local" data-range-start></label>
+            <label>To <input type="datetime-local" data-range-end></label>
+            <button class="soc-button soc-button-primary" type="button" data-apply-range>Apply</button>
+        </div>
+        <label class="soc-global-search">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="Search sender, recipient, subject, domain, URL, filename, hash, event or incident…" autocomplete="off" data-global-search>
+            <span class="soc-search-shortcut">GLOBAL SEARCH</span>
+        </label>
+        <div class="soc-search-results" data-global-search-results hidden></div>
+        <div class="soc-updated">
+            <span class="soc-status-dot" aria-hidden="true"></span>
+            <span>LOCAL DATA</span>
+            <time data-last-updated>Waiting for data</time>
+        </div>
+    </section>
+
+    <section class="soc-kpi-grid" aria-label="Security overview metrics" data-kpis>
+        <div class="soc-loading panel">Loading saved scan statistics…</div>
+    </section>
+
+    <section class="soc-panel panel" id="activity">
+        <div class="soc-panel-heading">
+            <div>
+                <div class="section-kicker">TELEMETRY · STORED SCAN EVENTS</div>
+                <h2>Security threat activity over time</h2>
+                <p>Series are grouped from saved scans. Select a point to inspect that time window.</p>
+            </div>
+            <label class="soc-control soc-bucket-control">
+                <span>BUCKET</span>
+                <select data-activity-bucket>
+                    <option value="5m">5 minutes</option>
+                    <option value="15m">15 minutes</option>
+                    <option value="1h" selected>1 hour</option>
+                    <option value="1d">1 day</option>
+                </select>
+            </label>
+        </div>
+        <div class="soc-chart-legend" data-chart-legend></div>
+        <div class="soc-chart-wrap">
+            <svg class="soc-activity-chart" viewBox="0 0 1000 280" role="img" aria-label="Security events over time" data-activity-chart></svg>
+        </div>
+        <div class="soc-chart-empty" data-activity-empty hidden>No stored events in this time range.</div>
+        <div class="soc-chart-tooltip" data-chart-tooltip aria-live="polite"></div>
+    </section>
+
+    <section class="soc-distribution-grid" id="threat-distribution">
+        <article class="soc-panel panel">
+            <div class="soc-panel-heading compact">
+                <div><div class="section-kicker">EVENT SEVERITY</div><h2>Severity distribution</h2></div>
+            </div>
+            <div class="soc-donut-layout">
+                <div class="soc-donut" data-donut="severity" role="img" aria-label="Severity distribution"></div>
+                <div class="soc-legend-list" data-legend="severity"></div>
+            </div>
+        </article>
+        <article class="soc-panel panel">
+            <div class="soc-panel-heading compact">
+                <div><div class="section-kicker">OBSERVED INDICATORS</div><h2>Threat categories</h2></div>
+            </div>
+            <div class="soc-category-list" data-category-distribution></div>
+        </article>
+        <article class="soc-panel panel">
+            <div class="soc-panel-heading compact">
+                <div><div class="section-kicker">FILE SCANNER OUTCOMES</div><h2>File classification</h2></div>
+            </div>
+            <div class="soc-legend-list" data-legend="files"></div>
+        </article>
+        <article class="soc-panel panel">
+            <div class="soc-panel-heading compact">
+                <div><div class="section-kicker">URL MODEL OUTCOMES</div><h2>URL classification</h2></div>
+            </div>
+            <div class="soc-legend-list" data-legend="urls"></div>
+            <p class="soc-inline-note">Redirect chains and live reputation are not checked.</p>
+        </article>
+    </section>
+
+    <section class="soc-panel panel" id="email-security">
+        <div class="soc-panel-heading">
+            <div><div class="section-kicker">EMAIL SECURITY MONITORING</div><h2>Message risk overview</h2></div>
+            <a class="soc-text-link" href="{{ url_for('email_scanner') }}">Open email security →</a>
+        </div>
+        <div class="soc-inline-metrics" data-email-metrics></div>
+        <div class="soc-table-scroll">
+            <table class="soc-table soc-special-table">
+                <thead><tr><th>Sender</th><th>Recipient</th><th>Subject</th><th>Domain</th><th>Files</th><th>URLs</th><th>Risk</th><th>Verdict</th></tr></thead>
+                <tbody data-email-rows></tbody>
+            </table>
+        </div>
+        <div class="soc-empty" data-email-empty hidden>No email reports in this time range.</div>
+        <p class="soc-inline-note">Low-signal email verdicts are inconclusive, not proof of safety. Open a report for its detailed analysis.</p>
+    </section>
+
+    <section class="soc-dual-grid">
+        <article class="soc-panel panel" id="url-security">
+            <div class="soc-panel-heading">
+                <div><div class="section-kicker">URL SECURITY MONITORING</div><h2>Model classifications</h2></div>
+                <a class="soc-text-link" href="{{ url_for('home') }}">Analyze URL →</a>
+            </div>
+            <div class="soc-inline-metrics" data-url-metrics></div>
+            <div class="soc-table-scroll">
+                <table class="soc-table">
+                    <thead><tr><th>URL / host</th><th>Model result</th><th>Phishing probability</th><th>Scanned at</th><th></th></tr></thead>
+                    <tbody data-url-rows></tbody>
+                </table>
+            </div>
+            <div class="soc-empty" data-url-empty hidden>No URL scans in this time range.</div>
+            <p class="soc-inline-note">Model output is a structural prediction. VirusTotal URL reputation and redirects are not available.</p>
+        </article>
+        <article class="soc-panel panel" id="file-security">
+            <div class="soc-panel-heading">
+                <div><div class="section-kicker">FILE SECURITY MONITORING</div><h2>Scanner outcomes</h2></div>
+                <a class="soc-text-link" href="{{ url_for('file_scanner') }}">Scan file →</a>
+            </div>
+            <div class="soc-inline-metrics" data-file-metrics></div>
+            <div class="soc-table-scroll">
+                <table class="soc-table">
+                    <thead><tr><th>Filename / type</th><th>Size</th><th>SHA-256</th><th>Detection engine(s)</th><th>Status</th><th></th></tr></thead>
+                    <tbody data-file-rows></tbody>
+                </table>
+            </div>
+            <div class="soc-empty" data-file-empty hidden>No file scans in this time range.</div>
+            <p class="soc-inline-note">Macro, MIME-mismatch, and double-extension checks are not part of standalone file scans.</p>
+        </article>
+    </section>
+
+    <section class="soc-panel panel" id="top-indicators">
+        <div class="soc-panel-heading">
+            <div><div class="section-kicker">TOP THREAT INDICATORS</div><h2>Observed in this range</h2></div>
+        </div>
+        <div class="soc-indicator-grid" data-top-indicators></div>
+    </section>
+
+    <footer class="soc-disclaimer">
+        Counts and charts derive from saved scan records. Email risk scores are heuristic, URL classifications come from the included model, and file detections reflect only completed configured scanners. Unknown, pending, and no-detection outcomes are distinct.
+    </footer>
+</div>
+{% endblock %}

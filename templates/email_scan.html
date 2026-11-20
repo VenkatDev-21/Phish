@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Email analysis · PhishGuard{% endblock %}
+{% block page_name %}Email security{% endblock %}
+
+{% block content %}
+<section class="page-intro email-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> EMAIL SECURITY · MESSAGE TRIAGE</div>
+        <h1>Analyze an <span>email.</span></h1>
+        <p>Inspect a message, its links, and optional attachments. Email content is analyzed locally.</p>
+    </div>
+    <span class="secure-tag"><span class="live-dot"></span> NO LINKS OPENED</span>
+</section>
+
+<section class="email-scan-layout" id="analyze-email">
+    <div class="panel email-input-panel">
+        <div class="panel-heading">
+            <div><div class="section-kicker">LOCAL MESSAGE ANALYSIS</div><h2>Analyze email content</h2></div>
+        </div>
+        <p class="panel-description">Paste a complete email or just its subject, headers, body, or a suspicious link. Use “Show original” or “View source” to include full mail headers.</p>
+
+        <form action="{{ url_for('analyze_pasted_email') }}" method="POST" enctype="multipart/form-data" class="email-form" data-email-form data-max-characters="{{ max_email_characters }}" data-max-email-upload-bytes="{{ max_email_upload_bytes }}" data-max-attachment-bytes="{{ max_attachment_bytes }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="email-file">UPLOAD EMAIL FILE</label>
+            <input id="email-file" class="email-file-input" type="file" name="email_file" accept=".eml,.txt,.html,.htm" data-email-file>
+            <small class="email-upload-hint">.eml, .txt, .html or .htm · up to {{ max_email_upload_bytes // (1024 * 1024) }} MiB. Outlook .msg is not supported.</small>
+
+            <label for="email-attachments">OPTIONAL SEPARATE ATTACHMENTS</label>
+            <input id="email-attachments" class="email-file-input" type="file" name="attachments" multiple data-email-attachments>
+            <small class="email-upload-hint">Up to 10 files, {{ max_attachment_bytes // (1024 * 1024) }} MiB each, {{ max_email_request_bytes // (1024 * 1024) }} MiB total request. Files are inspected locally and removed afterward.</small>
+            <small class="email-selected-files" data-email-selected-files></small>
+
+            <label for="email-content">EMAIL TEXT, HEADERS, SUBJECT, BODY, OR LINK</label>
+            <textarea id="email-content" name="email_content" rows="14" maxlength="{{ max_email_characters }}" placeholder="From: billing@example.com&#10;Reply-To: verify@example.net&#10;Subject: Action required&#10;Authentication-Results: mx.example.com; spf=fail; dkim=pass; dmarc=fail&#10;&#10;Please verify your account: https://example.net/verify" spellcheck="false" data-email-input></textarea>
+            <div class="email-input-meta"><span>Up to {{ "{:,}".format(max_email_characters) }} characters · analyzed locally</span><span data-email-count>0 / {{ "{:,}".format(max_email_characters) }}</span></div>
+            <label class="email-option">
+                <input type="checkbox" name="dns_lookup">
+                <span><strong>Look up public DNS records for the sender domain</strong><small>Optional DNS findings provide context only; they do not authenticate a message.</small></span>
+            </label>
+            <label class="email-option">
+                <input type="checkbox" name="external_consent">
+                <span><strong>Allow third-party submission for this scan</strong><small>Only attachments may be sent to configured VirusTotal/OPSWAT accounts. This is unchecked by default; do not share private or regulated files.</small></span>
+            </label>
+            {% if error %}<p class="file-form-error" role="alert">{{ error }}</p>{% endif %}
+            <button class="button button-primary email-submit" type="submit" data-email-submit disabled><span data-email-submit-label>Paste email content to analyze</span><span class="button-arrow" aria-hidden="true">→</span></button>
+        </form>
+
+        <div class="email-privacy-note"><span aria-hidden="true">◇</span><p>The raw message body is processed locally and not retained. The report saves sender/subject, extracted links, findings, and risk score. Email content is never submitted to a provider; attachments are sent only when you explicitly check the consent option.</p></div>
+    </div>
+
+    <aside class="scan-aside">
+        <div class="panel insight-panel">
+            <div class="section-kicker">ANALYSIS SIGNALS</div>
+            <h3>Clues in the message.</h3>
+            <div class="step-list">
+                <div class="step-item"><span class="step-number">01</span><div><strong>Sender alignment</strong><p>Compare From, Reply-To, and Return-Path domains.</p></div></div>
+                <div class="step-item"><span class="step-number">02</span><div><strong>Suspicious content</strong><p>Review language, HTML, and requests for credentials or payment.</p></div></div>
+                <div class="step-item"><span class="step-number">03</span><div><strong>Links and attachments</strong><p>Inspect destinations and static file signals without opening links.</p></div></div>
+            </div>
+        </div>
+        <div class="panel caution-panel">
+            <div class="caution-icon" aria-hidden="true">!</div>
+            <div><strong>Signals are not proof</strong><p>Missing or reported authentication results are not independently verified. A low-risk score cannot confirm a message is genuine.</p></div>
+        </div>
+    </aside>
+</section>
+{% endblock %}

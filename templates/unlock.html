@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Unlock history · PhishGuard{% endblock %}
+{% block page_name %}Restricted area{% endblock %}
+
+{% block content %}
+<section class="page-intro compact-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> ACCESS CONTROL · SAVED SCAN HISTORY</div>
+        <h1>This console is <span>locked.</span></h1>
+        <p>Overview, investigation history, and authentication records are behind a shared access code on this deployment. The scanners stay open.</p>
+    </div>
+</section>
+
+<section class="unlock-layout">
+    <form class="panel unlock-panel" method="post" action="{{ url_for('unlock') }}">
+        <div class="panel-heading">
+            <div><div class="section-kicker">01 / UNLOCK</div><h2>Enter the access code</h2></div>
+            <span class="secure-tag"><span class="live-dot"></span> SESSION ONLY</span>
+        </div>
+        <p class="panel-description">The code is checked on the server and kept in a signed session cookie. Nothing is stored in the browser beyond that.</p>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="next" value="{{ next }}">
+        <label for="access-code">ACCESS CODE</label>
+        <input id="access-code" class="unlock-input" type="password" name="access_code" autocomplete="current-password" spellcheck="false" required autofocus>
+        {% if error %}<p class="file-form-error" role="alert">{{ error }}</p>{% endif %}
+        <button class="button button-primary unlock-submit" type="submit">
+            <span>Unlock history</span>
+            <span class="button-arrow" aria-hidden="true">→</span>
+        </button>
+    </form>
+
+    <aside class="scan-aside">
+        <div class="panel insight-panel">
+            <div class="section-kicker">WHY A GATE</div>
+            <h3>Scan records are evidence.</h3>
+            <div class="step-list">
+                <div class="step-item"><span class="step-number">01</span><div><strong>They contain real data</strong><p>URLs, senders, subjects, filenames, and attachment hashes.</p></div></div>
+                <div class="step-item"><span class="step-number">02</span><div><strong>Public links leak it</strong><p>Anyone with the address could read the whole timeline.</p></div></div>
+                <div class="step-item"><span class="step-number">03</span><div><strong>The scanners stay open</strong><p>URL, email, and file analysis never require the code.</p></div></div>
+            </div>
+        </div>
+        <div class="panel caution-panel">
+            <div class="caution-icon" aria-hidden="true">!</div>
+            <div><strong>Share carefully</strong><p>Give the code only to people who should see stored scan metadata.</p></div>
+        </div>
+    </aside>
+</section>
+{% endblock %}

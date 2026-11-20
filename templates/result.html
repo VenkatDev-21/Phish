@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Scan result · PhishGuard{% endblock %}
+{% block page_name %}Scan result{% endblock %}
+
+{% block content %}
+<section class="page-intro compact-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> ANALYSIS COMPLETE</div>
+        <h1>Your link <span>report.</span></h1>
+        <p>Here’s what the URL scanner found. Review the signals before deciding what to do next.</p>
+    </div>
+</section>
+
+<section class="result-layout">
+    <div class="panel result-main">
+        {% if error %}
+        <div class="error-state">
+            <div class="error-icon" aria-hidden="true">!</div>
+            <div class="section-kicker">SCAN NOT COMPLETED</div>
+            <h2>We couldn’t analyze that URL.</h2>
+            <p>{{ error }}</p>
+            <a href="{{ url_for('home') }}" class="button button-primary">Try another URL <span aria-hidden="true">→</span></a>
+        </div>
+        {% else %}
+        <div class="result-head">
+            <div class="result-status-icon{% if result == 'PHISHING' %} is-danger{% else %} is-safe{% endif %}" aria-hidden="true">
+                {% if result == 'PHISHING' %}×{% else %}✓{% endif %}
+            </div>
+            <div>
+                <div class="section-kicker">MODEL CLASSIFICATION</div>
+                <h2 class="{% if result == 'PHISHING' %}danger{% else %}safe{% endif %}">{{ result }}</h2>
+                <span class="risk-pill{% if result == 'PHISHING' %} risk-high{% else %} risk-low{% endif %}">{{ risk_level }} risk</span>
+            </div>
+        </div>
+
+        <div class="analyzed-url">
+            <span>ANALYZED URL</span>
+            <strong class="url">{{ url }}</strong>
+        </div>
+
+        <div class="probability-block">
+            <div class="probability-header">
+                <div><span class="section-kicker">PHISHING PROBABILITY</span><p>Model confidence for this URL</p></div>
+                <strong>{{ probability }}<small>%</small></strong>
+            </div>
+            <div class="probability-track" role="meter" aria-label="Phishing probability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ probability }}">
+                <span style="width: {{ probability }}%"></span>
+            </div>
+            <div class="probability-scale"><span>LOW SIGNAL</span><span>HIGH SIGNAL</span></div>
+        </div>
+
+        <div class="result-disclaimer"><span aria-hidden="true">i</span> This is a machine-learning estimate, not proof that a website is safe or malicious. Don’t rely on it as your only security check.</div>
+        {% endif %}
+    </div>
+
+    {% if not error %}
+    <aside class="panel result-side">
+        <div class="panel-heading">
+            <div><div class="section-kicker">MODEL INPUT</div><h3>URL signals</h3></div>
+            <span class="feature-count">{{ features|length }} FEATURES</span>
+        </div>
+        <p class="panel-description">A few of the structural details considered by the model.</p>
+        <div class="feature-list">
+            {% for key, value in features.items() %}
+            <div class="feature-row">
+                <span>{{ key|replace('_', ' ')|title }}</span>
+                <strong>{{ value }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+    </aside>
+    {% endif %}
+</section>
+<div class="page-actions">
+    <a href="{{ url_for('home') }}" class="button button-primary">Scan another URL <span aria-hidden="true">→</span></a>
+    <a href="{{ url_for('history') }}" class="button button-quiet">View scan history</a>
+</div>
+{% endblock %}

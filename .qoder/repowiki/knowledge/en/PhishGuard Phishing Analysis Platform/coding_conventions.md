@@ -1,0 +1,3 @@
+- Runtime configuration flows exclusively through environment variables loaded via `python-dotenv`, never hard-coded.
+- Shared secrets and sensitive values live in `.env` (gitignored) and are documented in `.env.example` rather than committed.
+- Deployment manifests (`Procfile`, `render.yaml`) keep the gunicorn command identical so local and hosted runs share the same process topology.

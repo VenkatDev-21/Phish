@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Email analysis report · PhishGuard{% endblock %}
+{% block page_name %}Email analysis{% endblock %}
+
+{% block content %}
+<section class="page-intro compact-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> EMAIL SECURITY REPORT</div>
+        <h1>Message <span>signals.</span></h1>
+        <p>Static analysis of the supplied message. URLs are not opened; reported mail authentication results are not independently verified.</p>
+    </div>
+</section>
+
+{% if error %}
+<section class="panel email-report-panel">
+    <div class="error-state">
+        <div class="error-icon" aria-hidden="true">!</div>
+        <div class="section-kicker">REPORT NOT AVAILABLE</div>
+        <h2>We couldn’t load that analysis.</h2>
+        <p>{{ error }}</p>
+        <a href="{{ url_for('email_scanner') }}" class="button button-primary">Analyze email <span aria-hidden="true">→</span></a>
+    </div>
+</section>
+{% else %}
+<section class="email-report-grid">
+    <article class="panel email-report-panel">
+        <div class="email-risk-header">
+            <div class="email-risk-score email-risk-score-{{ results.risk_level|lower }}">
+                <strong>{{ results.risk_score }}</strong><span>/100</span>
+            </div>
+            <div class="email-risk-summary">
+                <div class="section-kicker">RULE-BASED RISK INDICATORS</div>
+                <h2 class="email-risk-heading email-risk-heading-{{ results.risk_level|lower }}">{{ results.risk_level }} Risk</h2>
+                <p>{{ results.verdict }} · {{ results.input_kind }} · {{ scan_time }}</p>
+            </div>
+        </div>
+        <div class="probability-track email-risk-track" role="meter" aria-label="Heuristic email risk indicators" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ results.risk_score }}" data-risk-meter>
+            <span data-risk-bar></span>
+        </div>
+
+        <div class="email-summary-grid">
+            <div><span>SUBJECT</span><strong>{{ results.subject }}</strong></div>
+            <div><span>FROM</span><strong>{{ results.sender }}</strong></div>
+            <div><span>REPLY-TO</span><strong>{{ results.reply_to }}</strong></div>
+            <div><span>RETURN-PATH</span><strong>{{ results.return_path }}</strong></div>
+            <div><span>TO</span><strong>{{ results.to }}</strong></div>
+            <div><span>DATE / MESSAGE-ID</span><strong>{{ results.date }} · {{ results.message_id }}</strong></div>
+        </div>
+        <div class="email-recommendation">
+            <strong>Recommended action</strong>
+            <p>{{ results.recommendation }}</p>
+            <small>{{ results.confidence }}</small>
+        </div>
+
+        <div class="email-category-scores">
+            {% for category, value in results.category_scores.items() %}
+            <div><span>{{ category|replace('_', ' ')|title }}</span><strong>{{ value }}</strong></div>
+            {% endfor %}
+        </div>
+
+        <div class="email-findings">
+            <div class="panel-heading"><div><div class="section-kicker">OBSERVATIONS</div><h3>What stood out</h3></div><span class="feature-count">{{ results.findings|length }} SIGNALS</span></div>
+            {% for finding in results.findings %}
+            <article class="email-finding email-finding-{{ finding.severity }}">
+                <span class="email-finding-dot" aria-hidden="true"></span>
+                <div><strong>{{ finding.title }}</strong><p>{{ finding.detail }}</p></div>
+                <span class="finding-severity">{{ finding.severity|title }}</span>
+            </article>
+            {% endfor %}
+        </div>
+    </article>
+
+    <aside class="email-report-aside">
+        <section class="panel email-auth-panel">
+            <div class="panel-heading"><div><div class="section-kicker">AUTHENTICATION</div><h3>Reported header results</h3></div></div>
+            <p class="panel-description">These are claims in the supplied headers. PhishGuard does not independently verify SPF, DKIM signatures, or DMARC for this message.</p>
+            {% for method in ['spf', 'dkim', 'dmarc'] %}
+            {% set auth_status = results.authentication[method] %}
+            <div class="auth-result-row">
+                <span>{{ method|upper }}</span>
+                <strong class="auth-value {{ 'auth-value-fail' if 'fail' in auth_status or 'softfail' in auth_status or 'permerror' in auth_status else 'auth-value-reported' if auth_status != 'unknown' else 'auth-value-unknown' }}">{{ auth_status|title if auth_status != 'unknown' else 'Not enough information' }}</strong>
+            </div>
+            {% endfor %}
+            {% if results.authentication_details.dkim.signature_domains %}
+            <p class="email-detail-line">DKIM signing domain(s): {{ results.authentication_details.dkim.signature_domains|join(', ') }}</p>
+            {% endif %}
+            {% if results.authentication_details.dkim.selectors %}
+            <p class="email-detail-line">DKIM selector(s): {{ results.authentication_details.dkim.selectors|join(', ') }}</p>
+            {% endif %}
+            <p class="email-detail-line">Reported by: {{ results.authentication_details.authserv_ids|join(', ') if results.authentication_details.authserv_ids else 'No Authentication-Results header provided' }}</p>
+        </section>
+
+        <section class="panel email-auth-panel">
+            <div class="panel-heading"><div><div class="section-kicker">PUBLIC DNS</div><h3>Sender domain records</h3></div></div>
+            {% if results.dns.checked %}
+            <p class="panel-description">Records looked up for {{ results.dns.domain }}. DNS records do not prove which server sent this message.</p>
+            <p class="email-detail-line">DMARC policy domain: {{ results.dns.dmarc.record_domain or results.dns.domain }}</p>
+            {% for method in ['spf', 'dmarc'] %}
+            <div class="auth-result-row"><span>{{ method|upper }} DNS</span><strong class="auth-value auth-value-reported">{{ results.dns[method].status|replace('_', ' ')|title }}</strong></div>
+            {% for record in results.dns[method].records %}<p class="email-dns-record">{{ record }}</p>{% endfor %}
+            {% endfor %}
+            <p class="email-detail-line">DMARC policy: {{ results.dns.dmarc.policy or 'Not published' }}</p>
+            <p class="email-detail-line">MX: {{ results.dns.mx.records|join(', ') if results.dns.mx.status == 'found' else results.dns.mx.status|replace('_', ' ')|title }}</p>
+            <p class="email-detail-line">A: {{ results.dns.a.records|join(', ') if results.dns.a.status == 'found' else results.dns.a.status|replace('_', ' ')|title }}</p>
+            <p class="email-detail-line">NS: {{ results.dns.ns.records|join(', ') if results.dns.ns.status == 'found' else results.dns.ns.status|replace('_', ' ')|title }}</p>
+            {% else %}
+            <p class="panel-description">{{ results.dns.message }}</p>
+            {% endif %}
+        </section>
+
+        <section class="panel email-links-panel">
+            <div class="panel-heading"><div><div class="section-kicker">DESTINATIONS</div><h3>Links found</h3></div><span class="feature-count">{{ results.links|length }} LINKS</span></div>
+            {% if results.links %}
+            <div class="email-link-list">
+                {% for link in results.links %}
+                <article class="email-link-item{% if link.anchor_mismatch %} has-link-mismatch{% endif %}">
+                    <span class="email-link-host">{{ link.host or 'Unparsed destination' }}</span>
+                    <code>{{ link.url }}</code>
+                    {% if link.source %}<small>{{ link.source }}</small>{% endif %}
+                    {% if link.anchor_mismatch %}<small>Visible link label points to a different host.</small>{% endif %}
+                    {% if link.hidden %}<small>Hidden HTML link.</small>{% endif %}
+                    {% if link.model is defined and link.model.status == 'predicted' %}
+                    <small>URL model prediction: {{ link.model.prediction|title }} · {{ link.model.phishing_probability }}% phishing probability. This is a prediction, not a confirmed finding.</small>
+                    {% elif link.model is defined and link.model.status == 'unavailable' %}
+                    <small>{{ link.model.message }}</small>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="email-empty-links">No web links found in the supplied text.</p>
+            {% endif %}
+            <p class="email-no-open"><span aria-hidden="true">◇</span> These are text only. PhishGuard did not visit them.</p>
+        </section>
+
+        <section class="panel email-links-panel">
+            <div class="panel-heading"><div><div class="section-kicker">ATTACHMENTS</div><h3>File inspection</h3></div><span class="feature-count">{{ results.attachments|length }} FILES</span></div>
+            {% if results.attachments %}
+            {% for attachment in results.attachments %}
+            <article class="email-attachment">
+                <strong>{{ attachment.filename }}</strong>
+                <p>{{ attachment.actual_type or 'Type unavailable' }} · {{ attachment.size|filesizeformat if attachment.size is defined else 'size unavailable' }} · {{ attachment.status|title }}</p>
+                {% if attachment.sha256 %}<code>SHA-256 {{ attachment.sha256 }}</code>{% endif %}
+                {% for finding in attachment.findings %}
+                <small class="attachment-finding">{{ finding.title }} — {{ finding.detail }}</small>
+                {% endfor %}
+                {% if attachment.scanners is defined %}
+                {% for engine in attachment.scanners.engines %}
+                <small>{{ engine.provider }}: {{ engine.status|replace('_', ' ')|title }} — {{ engine.message }}</small>
+                {% endfor %}
+                {% endif %}
+                {% for link in attachment.extracted_urls %}
+                <small>Embedded link: {{ link }}</small>
+                {% endfor %}
+            </article>
+            {% endfor %}
+            {% else %}
+            <p class="email-empty-links">No attachments were analyzed.</p>
+            {% endif %}
+        </section>
+    </aside>
+</section>
+
+<div class="result-disclaimer"><span aria-hidden="true">i</span> Risk scores are rule-based indicators, not calibrated probabilities. Authentication results in an uploaded or pasted message may be forged. No detection or low score is not proof of safety.</div>
+{% endif %}
+
+<div class="page-actions">
+    <a href="{{ url_for('email_scanner') }}" class="button button-primary">Analyze another email <span aria-hidden="true">→</span></a>
+    {% if scan_id %}<a href="{{ url_for('export_email_scan', scan_id=scan_id) }}" class="button button-quiet">Export JSON</a>{% endif %}
+    <a href="{{ url_for('dashboard') }}" class="button button-quiet">View dashboard</a>
+</div>
+{% endblock %}

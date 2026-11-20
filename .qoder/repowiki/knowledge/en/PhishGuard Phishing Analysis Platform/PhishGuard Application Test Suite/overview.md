@@ -1,0 +1,1 @@
+Unit and integration tests for the PhishGuard Flask application, covering dashboard rendering, email analysis, file scanning, and production hardening.

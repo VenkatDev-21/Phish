@@ -1,0 +1,4 @@
+- DOM elements are selected via `document.querySelector("[data-…]")` selectors and mutated through helper functions (`setStatus`, `showError`, `renderResult`, `setBusy`) rather than inline event handlers.
+- Serverless handlers export a default async `handler(request, response)` function and set `Cache-Control: no-store` before any response.
+- Upstream URLs are read from `process.env.PHISHGUARD_APP_URL` and normalized with `.replace(/\/+$/, "")` before use in every handler.
+- Errors from the upstream backend are surfaced to the caller as JSON objects containing an `error` string, with HTTP status codes chosen to distinguish client misuse (400/405) from backend unreachability (502/503/504).

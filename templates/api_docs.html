@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}API &amp; integrations · PhishGuard{% endblock %}
+{% block page_name %}API &amp; integrations{% endblock %}
+
+{% block content %}
+<section class="page-intro compact-intro">
+    <div>
+        <div class="eyebrow"><span class="eyebrow-mark"></span> JSON API · AUTOMATION READY</div>
+        <h1>Use PhishGuard <span>from code.</span></h1>
+        <p>The hosted console exposes the same URL model over a small JSON API, so a static front-end, a mail gateway, or a CI check can score links without a browser.</p>
+    </div>
+    <span class="secure-tag"><span class="live-dot"></span> NO AUTH FOR SCANS</span>
+</section>
+
+<section class="api-layout">
+    <div class="api-main">
+        <article class="panel api-panel">
+            <div class="panel-heading">
+                <div><div class="section-kicker">01 / SCORE A URL</div><h2>POST /api/v1/scan/url</h2></div>
+                <span class="api-method api-method-post">POST</span>
+            </div>
+            <p class="panel-description">Send <code>{"url": "https://example.com"}</code> as JSON. The URL is parsed and scored; it is never fetched, so nothing on that host can respond to the request.</p>
+
+            <div class="api-code-block">
+                <div class="api-code-head">
+                    <span>cURL</span>
+                    <button class="api-copy" type="button" data-copy-target="curl-sample">Copy</button>
+                </div>
+<pre id="curl-sample" class="api-code">curl -X POST {{ request.url_root }}api/v1/scan/url \
+  -H "Content-Type: application/json" \
+  -d '{"url": "http://secure-account-verify.example/login"}'</pre>
+            </div>
+
+            <div class="api-code-block">
+                <div class="api-code-head"><span>Response · 201</span></div>
+<pre class="api-code">{
+  "scan_id": 42,
+  "scanned_at": "2026-01-01 12:00:00",
+  "url": "http://secure-account-verify.example/login",
+  "result": "PHISHING",
+  "risk_level": "High",
+  "probability": 91.4,
+  "features": { "url_length": 46, "has_login_word": 1, "...": "..." },
+  "engine": "phishguard-url-random-forest",
+  "disclaimer": "Structural model output only."
+}</pre>
+            </div>
+
+            <p class="api-note">Status <code>400</code> means the URL failed validation, and <code>429</code> means the caller went over the shared rate limit.</p>
+        </article>
+
+        <article class="panel api-panel">
+            <div class="panel-heading">
+                <div><div class="section-kicker">02 / HEALTH</div><h2>GET /healthz</h2></div>
+                <span class="api-method api-method-get">GET</span>
+            </div>
+            <p class="panel-description">Small probe for Render, uptime monitors, and load balancers. Returns <code>200</code> when the database responds and the model is loaded, otherwise <code>503</code>.</p>
+            <div class="api-code-block">
+                <div class="api-code-head"><span>Response · 200</span></div>
+<pre class="api-code">{ "status": "ok", "environment": "production", "database": "ok",
+  "model": "loaded", "uptime_seconds": 3610 }</pre>
+            </div>
+        </article>
+
+        <article class="panel api-panel">
+            <div class="panel-heading">
+                <div><div class="section-kicker">03 / CAPABILITIES</div><h2>GET /api/v1/health</h2></div>
+                <span class="api-method api-method-get">GET</span>
+            </div>
+            <p class="panel-description">Machine-readable description of the endpoint, the model features, active limits, and whether stored history is gated.</p>
+            <div class="api-inline-links">
+                <a class="button button-quiet" href="{{ url_for('api_health') }}">Try it <span aria-hidden="true">↗</span></a>
+                <a class="button button-quiet" href="{{ url_for('healthz') }}">Probe health <span aria-hidden="true">↗</span></a>
+            </div>
+        </article>
+    </div>
+
+    <aside class="scan-aside api-aside">
+        <div class="panel insight-panel">
+            <div class="section-kicker">LIMITS ON THIS DEPLOYMENT</div>
+            <h3>Know the ceilings.</h3>
+            <div class="api-limit-list">
+                <div><span>Public API</span><strong>{{ api_rule.limit }} requests / {{ api_rule.window_seconds // 60 }} min</strong></div>
+                <div><span>URL length</span><strong>{{ "{:,}".format(max_url_length) }} characters</strong></div>
+                <div><span>File upload</span><strong>{{ (max_upload_bytes / 1024 / 1024)|round(0)|int }} MiB</strong></div>
+                <div><span>Email request</span><strong>{{ (config.MAX_CONTENT_LENGTH / 1024 / 1024)|round(0)|int }} MiB</strong></div>
+                <div><span>History access</span><strong>{{ 'Access code' if config.ACCESS_CODE else 'Open on this host' }}</strong></div>
+            </div>
+        </div>
+
+        <div class="panel insight-panel">
+            <div class="section-kicker">MODEL FEATURES</div>
+            <h3>{{ features|length }} structural signals.</h3>
+            <div class="api-feature-chips">
+                {% for feature in features %}
+                <span>{{ feature|replace('_', ' ') }}</span>
+                {% endfor %}
+            </div>
+            <p class="api-note">Counts of dots, hyphens, digits, and special characters, plus scheme, IP-host, subdomain, and login-word flags.</p>
+        </div>
+
+        <div class="panel caution-panel">
+            <div class="caution-icon" aria-hidden="true">!</div>
+            <div><strong>Not a verdict</strong><p>A score is a structural estimate. It cannot confirm a site is safe and it never inspects page content.</p></div>
+        </div>
+    </aside>
+</section>
+{% endblock %}

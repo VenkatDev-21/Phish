@@ -1,0 +1,1 @@
+Deployments use either `Procfile` or `render.yaml`; both invoke `gunicorn ... wsgi:app` against `$PORT`. Local development copies `.env.example` to `.env` and sets `FLASK_SECRET_KEY` plus `PHISHGUARD_DATA_DIR` before running the Flask dev server or gunicorn.

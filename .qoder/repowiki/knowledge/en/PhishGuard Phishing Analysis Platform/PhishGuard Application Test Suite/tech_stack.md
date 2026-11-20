@@ -1,0 +1,1 @@
+Python `unittest` framework; tests exercise a Flask application with SQLite-backed persistence and external integrations (ClamAV, VirusTotal, OPSWAT, DNS resolver) that are all mocked.

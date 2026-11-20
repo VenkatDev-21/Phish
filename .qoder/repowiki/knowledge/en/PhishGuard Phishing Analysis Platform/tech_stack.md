@@ -1,0 +1,1 @@
+Python 3.13 (`.python-version`), Flask 3.1 + gunicorn 23 as the WSGI server, Jinja2 for templating, SQLite for persistence, scikit-learn/pandas/numpy for ML features, dnspython for SPF/DKIM/DMARC checks, pypdf/Pillow for attachment inspection, and ClamAV/VirusTotal/OPSWAT as optional third-party scanners.

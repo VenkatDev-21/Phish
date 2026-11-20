@@ -1,0 +1,5 @@
+- Test fixtures isolate filesystem state by creating a `tempfile.TemporaryDirectory` and pointing both `DATABASE` and `UPLOAD_DIR` under it, cleaned up in `tearDown`.
+- CSRF tokens are obtained once per test by visiting a page and reading `self.client.session_transaction()['csrf_token']`, then passed back as form data and/or `X-CSRF-Token` header.
+- External dependencies (DNS, ClamAV subprocess, VirusTotal/OPSWAT HTTP, ML model predict) are replaced with `@patch` / `@patch.object` decorators rather than real network or process calls.
+- Database assertions go through `web_app._connection()` as a context manager executing parameterized SQL against the SQLite schema instead of using an ORM layer.
+- Configuration changes are scoped with `try/finally` blocks that restore previous values (e.g., `RATE_RULES`, `model`, original config dict) so tests do not leak state.

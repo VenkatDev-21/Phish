@@ -1,0 +1,1 @@
+Python standard library `email` parser plus `bs4` (BeautifulSoup) for HTML; `pypdf` for PDF text extraction; `PIL` for image metadata; `dnspython` for live DNS lookups; `tldextract` for registrable-domain comparison; optional scikit-learn-style estimator via `feature_extraction.extract_features`.

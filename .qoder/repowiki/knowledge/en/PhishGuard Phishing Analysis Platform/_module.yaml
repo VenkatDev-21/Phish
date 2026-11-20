@@ -1,0 +1,20 @@
+schema_version: 1
+module_path: ""
+title: PhishGuard Phishing Analysis Platform
+scope:
+    - README.md
+    - SECURITY.md
+    - DEPLOYMENT.md
+    - .gitignore
+    - Procfile
+    - requirements.txt
+    - render.yaml
+    - .env.example
+    - .python-version
+    - feature_extraction.py
+    - file_analysis.py
+    - security.py
+    - soc_dashboard.py
+source_files: []
+depends_on: []
+related_to: []

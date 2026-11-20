@@ -1,0 +1,1 @@
+Jinja2 HTML templates and client-side assets that render PhishGuard's dark-themed console for URL, file, email, authentication analysis, dashboard, and history.

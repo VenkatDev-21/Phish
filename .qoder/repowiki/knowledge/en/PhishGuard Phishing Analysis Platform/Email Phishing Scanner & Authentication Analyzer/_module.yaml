@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: email_scanner
+title: Email Phishing Scanner & Authentication Analyzer
+scope:
+    - email_security.py
+    - email_attachment_analysis.py
+    - email_auth.py
+source_files: []
+depends_on: []
+related_to: []

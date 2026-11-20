@@ -1,0 +1,14 @@
+{
+  "name": "phishguard-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static PhishGuard landing page plus a same-origin API proxy, deployed on Vercel.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  }
+}

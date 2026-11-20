@@ -1,0 +1,1 @@
+Flask + Werkzeug for HTTP, sqlite3 for persistence, pandas + joblib for loading a pre-trained scikit-learn Random Forest model, python-dotenv for `.env` loading, and a ThreadPoolExecutor (`FILE_SCAN_WORKERS`, default 2) for asynchronous file analysis.

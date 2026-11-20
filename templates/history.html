@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Investigation history · PhishGuard{% endblock %}
+{% block page_name %}Investigation history{% endblock %}
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='history.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="investigation-history" data-investigation-history data-page-size="25" data-refresh-seconds="60">
+    <div class="soc-alert" role="status" aria-live="polite" data-history-alert hidden></div>
+    <section class="soc-heading">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-mark"></span> UNIFIED SCAN TIMELINE</div>
+            <h1>Investigation <span>history.</span></h1>
+            <p>One searchable timeline of saved URL, file, and email scans.</p>
+        </div>
+        <div class="soc-controls">
+            <label class="soc-control">
+                <span>TIME RANGE</span>
+                <select data-history-range>
+                    <option value="all" selected>All stored scans</option>
+                    <option value="15m">Last 15 minutes</option>
+                    <option value="1h">Last 1 hour</option>
+                    <option value="24h">Last 24 hours</option>
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                    <option value="custom">Custom range</option>
+                </select>
+            </label>
+            <button class="soc-button" type="button" data-history-refresh>↻ Refresh</button>
+        </div>
+    </section>
+
+    <section class="soc-toolbar panel" aria-label="Investigation history filters">
+        <div class="soc-custom-range" data-history-custom-range hidden>
+            <label>From <input type="datetime-local" data-history-start></label>
+            <label>To <input type="datetime-local" data-history-end></label>
+            <button class="soc-button soc-button-primary" type="button" data-history-apply>Apply</button>
+        </div>
+        <div class="soc-table-tools history-event-filters">
+            <label>Source
+                <select data-history-source>
+                    <option value="all">All modules</option>
+                    <option value="url">URL security</option>
+                    <option value="file">File security</option>
+                    <option value="email">Email security</option>
+                </select>
+            </label>
+            <label>Severity
+                <select data-history-severity>
+                    <option value="all">All severities</option>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                    <option value="Informational">Informational</option>
+                </select>
+            </label>
+            <label>Event type
+                <select data-history-type>
+                    <option value="all">All event types</option>
+                    <option value="PHISHING_EMAIL_DETECTED">Phishing email detected</option>
+                    <option value="SUSPICIOUS_EMAIL_DETECTED">Suspicious email detected</option>
+                    <option value="EMAIL_ANALYZED">Email analyzed</option>
+                    <option value="MALICIOUS_FILE_DETECTED">Malicious file detected</option>
+                    <option value="FILE_SCAN_COMPLETED">File scan completed</option>
+                    <option value="FILE_SCAN_FAILED">File scan failed</option>
+                    <option value="FILE_SCAN_PENDING">File scan pending</option>
+                    <option value="MALICIOUS_URL_DETECTED">Phishing URL detected</option>
+                    <option value="URL_ANALYSIS_COMPLETED">URL analysis completed</option>
+                </select>
+            </label>
+            <label>Search history
+                <input type="search" placeholder="Sender, URL, filename, category…" data-history-search>
+            </label>
+            <a class="soc-button soc-button-primary" href="{{ url_for('dashboard_recent_events_csv') }}" data-history-export>Export CSV</a>
+        </div>
+    </section>
+
+    <section class="soc-panel panel">
+        <div class="soc-panel-heading">
+            <div>
+                <div class="section-kicker">ALL MODULES · NEWEST FIRST</div>
+                <h2>Scan timeline</h2>
+                <p>Open any record to review its full URL, file, or email analysis.</p>
+            </div>
+            <span class="soc-count" data-history-count>Loading history…</span>
+        </div>
+        <div class="soc-table-scroll">
+            <table class="soc-table">
+                <thead>
+                    <tr><th>Timestamp</th><th>Source / entity</th><th>Event type</th><th>Category</th><th>Risk</th><th>Severity</th><th>Engine</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody data-history-rows></tbody>
+            </table>
+        </div>
+        <div class="soc-empty" data-history-empty hidden>No scan history matches this range and filter.</div>
+        <div class="soc-pagination">
+            <span data-history-page-label>Page 0 of 0</span>
+            <div>
+                <button class="soc-button" type="button" data-history-prev disabled>Previous</button>
+                <button class="soc-button" type="button" data-history-next disabled>Next</button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="soc-disclaimer">
+        Timeline records are derived from saved scans. Unknown, pending, inconclusive, and no-detection outcomes are not guarantees of safety.
+    </footer>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: frontend_templates
+title: PhishGuard Frontend Templates & Static Assets
+scope:
+    - static/
+    - templates/
+source_files: []
+depends_on: []
+related_to:
+    - path: flask_backend

@@ -1,0 +1,5 @@
+- Route handlers gate sensitive actions with `_rate_limit_blocked(name, ...)` using per-endpoint entries in the `RATE_RULES` dict before any business logic runs.
+- Form submissions validate CSRF via `_csrf_is_valid(request.form.get('csrf_token'))` for HTML forms and `_csrf_is_valid(request.headers.get('X-CSRF-Token'))` for AJAX/file-upload requests.
+- Database access goes through the `_connection()` context manager that opens a sqlite3 connection, commits on success, rolls back on exception, and closes in `finally`.
+- Configuration values are never read from `os.environ` inside route handlers — they flow through the `SETTINGS` dataclass (or `app.config` populated from it) so the app stays environment-agnostic.
+- Error responses follow a uniform shape: HTML error templates render `error.html` with `error_code`/`error_title`/`error_message` for browser flows, while JSON endpoints return `jsonify(error=...)` with a human-readable message.

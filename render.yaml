@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: phishguard
+    runtime: python
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --access-logfile - wsgi:app
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: PHISHGUARD_ENV
+        value: production
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: PHISHGUARD_DATA_DIR
+        value: /tmp/phishguard
+      - key: PHISHGUARD_ACCESS_CODE
+        sync: false
+      - key: PHISHGUARD_ALLOWED_ORIGINS
+        sync: false
+      - key: MAX_UPLOAD_BYTES
+        value: "52428800"
+      - key: FILE_SCAN_WORKERS
+        value: "2"
+      - key: PHISHGUARD_RATE_LIMIT
+        value: "1"

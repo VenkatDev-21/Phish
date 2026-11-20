@@ -1,0 +1,6 @@
+- Findings are appended through a shared helper (`_add_finding` in email_security, `_finding` in email_attachment_analysis) that deduplicates entries by `(category, title, detail)` tuple before insertion.
+- Each finding carries a fixed schema of `title`, `detail`, `severity` (info/low/medium/high), and an integer `score` used to accumulate per-category risk totals capped at 35.
+- URL normalization goes through a dedicated helper that strips trailing punctuation, rewrites `hxxp*` and bare `www.` prefixes to `http(s)://`, validates scheme/host/port/IDNA, and rejects URLs containing embedded credentials.
+- Domain comparisons use registrable-domain equality via `tldextract` rather than raw string equality, with an optional `strict=True` mode for exact host matching.
+- Heavy or network-bound operations (archive expansion, PDF parsing, image decoding, DNS resolution, external antivirus scan) are guarded by explicit size/count/page limits and return structured error findings instead of raising exceptions.
+- Optional external services (ML URL model, DNS lookup, external antivirus engine) are gated behind boolean flags and return a stable result shape with a `status` field indicating `predicted`/`unavailable`/`skipped`.

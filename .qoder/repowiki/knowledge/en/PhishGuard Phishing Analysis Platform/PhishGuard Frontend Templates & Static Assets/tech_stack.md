@@ -1,0 +1,1 @@
+Jinja2 templating with Flask's `url_for`; vanilla JavaScript (no framework) with `fetch` + `XMLHttpRequest` for uploads; CSS custom properties defining a dark theme (`--bg: #08111f`, teal accent `#4de2c1`).

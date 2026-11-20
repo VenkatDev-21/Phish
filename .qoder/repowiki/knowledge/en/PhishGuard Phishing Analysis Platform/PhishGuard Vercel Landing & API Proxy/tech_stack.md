@@ -1,0 +1,1 @@
+Vanilla ES modules (`"type": "module"` in package.json), Node ≥20, deployed as Vercel Functions with zero bundler. No framework (`framework: null`).

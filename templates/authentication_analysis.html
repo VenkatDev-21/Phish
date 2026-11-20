@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Authentication analysis · PhishGuard{% endblock %}
+{% block page_name %}Authentication analysis{% endblock %}
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='authentication_analysis.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="authentication-analysis" data-authentication-page data-page-size="25" data-refresh-seconds="60">
+    <div class="soc-alert" role="status" aria-live="polite" data-authentication-alert hidden></div>
+    <section class="soc-heading">
+        <div>
+            <div class="eyebrow"><span class="eyebrow-mark"></span> MESSAGE AUTHENTICATION · MODULE HISTORY</div>
+            <h1>Authentication <span>analysis.</span></h1>
+            <p>Review SPF, DKIM, and DMARC claims, with separate email, file, and URL scan histories.</p>
+        </div>
+        <div class="soc-controls">
+            <label class="soc-control">
+                <span>TIME RANGE</span>
+                <select data-authentication-range>
+                    <option value="all" selected>All stored scans</option>
+                    <option value="15m">Last 15 minutes</option>
+                    <option value="1h">Last 1 hour</option>
+                    <option value="24h">Last 24 hours</option>
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                </select>
+            </label>
+            <button class="soc-button" type="button" data-authentication-refresh>↻ Refresh</button>
+        </div>
+    </section>
+
+    <section class="soc-panel panel">
+        <div class="soc-panel-heading">
+            <div>
+                <div class="section-kicker">REPORTED EMAIL HEADER RESULTS</div>
+                <h2>SPF · DKIM · DMARC</h2>
+            </div>
+            <span class="soc-provenance">Reported claims ≠ verified authentication</span>
+        </div>
+        <div class="soc-auth-grid" data-authentication-methods>
+            <div class="soc-loading">Loading authentication statistics…</div>
+        </div>
+        <div class="soc-auth-footer" data-authentication-summary></div>
+    </section>
+
+    <div class="authentication-history-tabs" role="tablist" aria-label="Scan history by module">
+        <button class="authentication-history-tab active" id="auth-email-tab" type="button" role="tab" aria-selected="true" aria-controls="auth-email-history" data-auth-history-tab="email">
+            Email history <span data-auth-email-tab-count>…</span>
+        </button>
+        <button class="authentication-history-tab" id="auth-file-tab" type="button" role="tab" aria-selected="false" aria-controls="auth-file-history" data-auth-history-tab="file" tabindex="-1">
+            File history <span data-auth-file-tab-count>…</span>
+        </button>
+        <button class="authentication-history-tab" id="auth-url-tab" type="button" role="tab" aria-selected="false" aria-controls="auth-url-history" data-auth-history-tab="url" tabindex="-1">
+            URL history <span data-auth-url-tab-count>…</span>
+        </button>
+    </div>
+
+    <section class="soc-panel panel authentication-history-panel" id="auth-email-history" role="tabpanel" aria-labelledby="auth-email-tab" data-auth-history-panel="email">
+        <div class="soc-panel-heading">
+            <div>
+                <div class="section-kicker">EMAIL SECURITY</div>
+                <h2>Email authentication history</h2>
+                <p>Reported SPF, DKIM, and DMARC results for each analyzed message.</p>
+            </div>
+        </div>
+        <div class="soc-toolbar authentication-history-toolbar" aria-label="Email history search">
+            <label class="soc-global-search">
+                <span aria-hidden="true">⌕</span>
+                <input type="search" placeholder="Search sender, subject, domain…" autocomplete="off" data-authentication-search>
+            </label>
+            <span class="soc-count" data-authentication-count>Loading email records…</span>
+        </div>
+        <div class="soc-table-scroll">
+            <table class="soc-table soc-special-table">
+                <thead>
+                    <tr><th>Scanned at</th><th>Sender</th><th>Domain</th><th>Subject</th><th>SPF</th><th>DKIM</th><th>DMARC</th><th></th></tr>
+                </thead>
+                <tbody data-authentication-rows></tbody>
+            </table>
+        </div>
+        <div class="soc-empty" data-authentication-empty hidden>No email authentication records match this range or search.</div>
+        <div class="soc-pagination">
+            <span data-authentication-page-label>Page 0 of 0</span>
+            <div>
+                <button class="soc-button" type="button" data-authentication-prev disabled>Previous</button>
+                <button class="soc-button" type="button" data-authentication-next disabled>Next</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="soc-panel panel authentication-history-panel" id="auth-file-history" role="tabpanel" aria-labelledby="auth-file-tab" data-auth-history-panel="file" hidden>
+        <div class="soc-panel-heading">
+            <div>
+                <div class="section-kicker">FILE SECURITY</div>
+                <h2>File scan history</h2>
+                <p>Saved file metadata, scanner outcomes, and investigation reports.</p>
+            </div>
+            <span class="soc-count" data-auth-file-count>Loading file records…</span>
+        </div>
+        <div class="soc-table-scroll">
+            <table class="soc-table">
+                <thead>
+                    <tr><th>Scanned at</th><th>Filename</th><th>File type</th><th>Size</th><th>SHA-256</th><th>Engine results</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody data-auth-file-rows></tbody>
+            </table>
+        </div>
+        <div class="soc-empty" data-auth-file-empty hidden>No file scans match this time range.</div>
+        <div class="soc-pagination">
+            <span data-auth-file-page-label>Page 0 of 0</span>
+            <div>
+                <button class="soc-button" type="button" data-auth-file-prev disabled>Previous</button>
+                <button class="soc-button" type="button" data-auth-file-next disabled>Next</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="soc-panel panel authentication-history-panel" id="auth-url-history" role="tabpanel" aria-labelledby="auth-url-tab" data-auth-history-panel="url" hidden>
+        <div class="soc-panel-heading">
+            <div>
+                <div class="section-kicker">URL SECURITY</div>
+                <h2>URL scan history</h2>
+                <p>Saved URL model classifications and phishing probability results.</p>
+            </div>
+            <span class="soc-count" data-auth-url-count>Loading URL records…</span>
+        </div>
+        <div class="soc-table-scroll">
+            <table class="soc-table">
+                <thead>
+                    <tr><th>Scanned at</th><th>URL</th><th>Host</th><th>Classification</th><th>Phishing probability</th><th>Risk</th><th></th></tr>
+                </thead>
+                <tbody data-auth-url-rows></tbody>
+            </table>
+        </div>
+        <div class="soc-empty" data-auth-url-empty hidden>No URL scans match this time range.</div>
+        <div class="soc-pagination">
+            <span data-auth-url-page-label>Page 0 of 0</span>
+            <div>
+                <button class="soc-button" type="button" data-auth-url-prev disabled>Previous</button>
+                <button class="soc-button" type="button" data-auth-url-next disabled>Next</button>
+            </div>
+        </div>
+    </section>
+
+    <p class="soc-inline-note">Header values are reported claims and may be forged. PhishGuard does not independently verify SPF, DKIM signatures, or DMARC authentication. DNS policy lookups do not authenticate a message. The Investigation History module remains the unified timeline for all scan types.</p>
+</div>
+{% endblock %}

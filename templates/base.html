@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#08111f">
+    <meta name="description" content="PhishGuard provides local URL, file, and email security triage with an auditable scan history.">
+    <meta name="csrf-token" content="{{ csrf_token|default('') }}">
+    <meta name="color-scheme" content="dark">
+    <title>{% block title %}PhishGuard{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+    {% block page_scripts %}{% endblock %}
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="{{ url_for('home') }}" aria-label="PhishGuard home">
+                <span class="brand-mark" aria-hidden="true">P</span>
+                <span class="brand-name">phish<span>guard</span></span>
+            </a>
+
+            <div class="sidebar-label">WORKSPACE</div>
+            <nav class="primary-nav" aria-label="Main navigation">
+                <a class="nav-link{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}">
+                    <span class="nav-icon" aria-hidden="true">▦</span>
+                    <span>Overview</span>
+                </a>
+                <a class="nav-link{% if request.endpoint in ['email_scanner', 'analyze_pasted_email', 'email_scan_result'] %} active{% endif %}" href="{{ url_for('email_scanner') }}">
+                    <span class="nav-icon" aria-hidden="true">✉</span>
+                    <span>Email security</span>
+                </a>
+                <a class="nav-link{% if request.endpoint in ['home', 'predict', 'url_scan_result'] %} active{% endif %}" href="{{ url_for('home') }}">
+                    <span class="nav-icon" aria-hidden="true">⌕</span>
+                    <span>URL security</span>
+                </a>
+                <a class="nav-link{% if request.endpoint in ['file_scanner', 'upload_file', 'file_scan_result'] %} active{% endif %}" href="{{ url_for('file_scanner') }}">
+                    <span class="nav-icon" aria-hidden="true">◈</span>
+                    <span>File security</span>
+                </a>
+                <a class="nav-link{% if request.endpoint == 'authentication_analysis' %} active{% endif %}" href="{{ url_for('authentication_analysis') }}">
+                    <span class="nav-icon" aria-hidden="true">⌑</span>
+                    <span>Authentication</span>
+                </a>
+                <a class="nav-link{% if request.endpoint == 'history' %} active{% endif %}" href="{{ url_for('history') }}">
+                    <span class="nav-icon" aria-hidden="true">◷</span>
+                    <span>History</span>
+                </a>
+                <a class="nav-link{% if request.endpoint == 'api_docs' %} active{% endif %}" href="{{ url_for('api_docs') }}">
+                    <span class="nav-icon" aria-hidden="true">⇄</span>
+                    <span>API &amp; integrations</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-spacer"></div>
+            {% if config.ACCESS_CODE %}
+            <form class="sidebar-lock" method="post" action="{{ url_for('lock') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token|default('') }}">
+                <button type="submit" class="sidebar-lock-button">
+                    <span aria-hidden="true">⌧</span> Lock history
+                </button>
+            </form>
+            {% endif %}
+            <div class="sidebar-status">
+                <span class="status-pulse" aria-hidden="true"></span>
+                <div>
+                    <strong>Local-first analysis</strong>
+                    <span>External sharing is opt-in</span>
+                </div>
+            </div>
+            <div class="sidebar-foot">
+                {{ 'HOSTED CONSOLE' if config.IS_PRODUCTION else 'LOCAL CONSOLE' }} <span>·</span> PHISHGUARD
+            </div>
+        </aside>
+
+        <main class="main-content" id="main" tabindex="-1">
+            <header class="topbar">
+                <div class="topbar-context">
+                    <button class="sidebar-toggle" type="button" aria-label="Collapse navigation" aria-expanded="true" data-sidebar-toggle>☰</button>
+                    <div class="breadcrumb"><span>PHISHGUARD</span><span class="crumb-separator">/</span>{% block page_name %}Overview{% endblock %}</div>
+                </div>
+                <div class="topbar-actions">
+                    <a class="topbar-link topbar-muted" href="{{ url_for('api_docs') }}">JSON API</a>
+                    <a class="topbar-link" href="{{ url_for('dashboard') }}">
+                        <span class="live-dot" aria-hidden="true"></span>
+                        {{ 'Hosted' if config.IS_PRODUCTION else 'Local console' }}
+                    </a>
+                </div>
+            </header>
+            {% block content %}{% endblock %}
+            <footer class="page-footer">
+                <span>Built for safer browsing.</span>
+                <span>Static security signals are indicative, not a guarantee of safety.</span>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

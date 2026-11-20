@@ -1,0 +1,1 @@
+Top-level orchestration of the PhishGuard phishing-analysis platform, wiring a Flask backend, email scanner, Jinja2 frontend, Vercel landing page, and test suite behind a shared gunicorn deployment.

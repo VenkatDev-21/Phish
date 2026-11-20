@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: flask_backend
+title: Flask Application & WSGI Entry Point
+scope:
+    - app.py
+    - wsgi.py
+    - runtime_config.py
+source_files: []
+depends_on: []
+related_to:
+    - path: frontend_templates
+    - path: vercel_frontend
